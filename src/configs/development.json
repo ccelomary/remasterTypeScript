@@ -1,0 +1,18 @@
+{
+    "env": "development",
+    "dbConfig": {
+        "username": "intAdmin",
+        "password": "EgvHB7YkH9PLGJT3",
+        "host": "cluster0.wiqle.mongodb.net",
+        "database": "1337SchoolQR"
+    },
+    "secretKey": "6c3d47926850c04f1d5888603554768c93c8a033091a1f58b07d64d5e9de5b87ccd547c77df18c4a3904e6b8f1981dc526b54574bf10326fa33f7ec48bb03131",
+    "log": {
+        "format": "dev",
+        "dir": "../logs"
+    },
+    "cors": {
+        "origin": true,
+        "credentials": true
+    }
+}
