@@ -12,6 +12,7 @@ class AuthRoute implements Routes {
 
   private initializeRoutes() {
     this.router.get('/oauth2/authenticate', this.authController.authenticate);
+    this.router.get('/oauth2/redirect', this.authController.callbackRedirect);
     this.router.get('/oauth2/callback', this.authController.callback);
   }
 }

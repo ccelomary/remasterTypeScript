@@ -11,8 +11,53 @@ class AuthController {
 
   public authenticate = async (req: Request, res: Response) => {
     res.redirect(
-      'https://api.intra.42.fr/oauth/authorize?client_id=77aae966bcf30aa1891a762725ff7ffc3715f29ebc8865884c70083af995d2c2&redirect_uri=http://localhost:5000/oauth2/callback&response_type=code',
+      'https://api.intra.42.fr/oauth/authorize?client_id=77aae966bcf30aa1891a762725ff7ffc3715f29ebc8865884c70083af995d2c2&redirect_uri=http://10.11.11.11:5000/oauth2/redirect&response_type=code',
     );
+  };
+
+  public callbackRedirect = async (req: Request, res: Response) => {
+    const code: string = (Array.isArray(req.query.code) ? req.query.code[0] : req.query.code) as string;
+
+    try {
+      await fetch('https://api.intra.42.fr/oauth/token', {
+        method: 'POST',
+        headers: {
+          // Check what headers the API needs. A couple of usuals right below
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          grant_type: 'authorization_code',
+          client_id: '77aae966bcf30aa1891a762725ff7ffc3715f29ebc8865884c70083af995d2c2',
+          client_secret: 'abbc19357de6a28b4108d325b7abb4a6d17f74baa24bc7dfae7c2bcdddd31eaa',
+          code: code,
+          redirect_uri: 'http://10.11.11.11:5000/oauth2/redirect',
+        }),
+      })
+        .then(resp => resp.json())
+        .then(async data => {
+          const access_token = data.access_token;
+
+          const new_data = await fetch('https://api.intra.42.fr/v2/me', {
+            method: 'GET',
+            headers: {
+              // Check what headers the API needs. A couple of usuals right below
+              Accept: 'application/json',
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${access_token}`,
+            },
+          }).then(resp => resp.json());
+
+          await this.handleStudentAuthentication(
+            { intra_id: new_data.id, name: new_data.displayname, image_url: new_data.image_url, login: new_data.login },
+            access_token,
+          );
+
+          res.redirect('schoolqr://auth?access_token=' + access_token);
+        });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   public callback = async (req: Request, res: Response) => {
@@ -31,7 +76,7 @@ class AuthController {
           client_id: '77aae966bcf30aa1891a762725ff7ffc3715f29ebc8865884c70083af995d2c2',
           client_secret: 'abbc19357de6a28b4108d325b7abb4a6d17f74baa24bc7dfae7c2bcdddd31eaa',
           code: code,
-          redirect_uri: 'http://localhost:5000/oauth2/callback',
+          redirect_uri: 'http://10.11.11.11:5000/oauth2/redirect',
         }),
       })
         .then(resp => resp.json())
@@ -85,6 +130,7 @@ class AuthController {
             login: data.login,
             name: data.name,
             image_url: data.image_url,
+            flag_priority: 1,
             intra_id: data.intra_id,
             connections: 0,
             points: 0,
@@ -93,6 +139,8 @@ class AuthController {
           if (Array.isArray(coalition.students)) coalition.students.push(student);
           else coalition.students = [student];
           await coalition.save();
+          student.coalition = coalition;
+          await student.save();
           const scaned = new this.ScanedStudent({ student: student });
           await scaned.save();
           return student;
@@ -123,6 +171,7 @@ class AuthController {
               image_url: data.image_url,
               intra_id: data.intra_id,
               connections: 0,
+              flag_priority: 1,
               points: 0,
             });
             if (Array.isArray(new_coalition.students)) new_coalition.students.push(new_student);

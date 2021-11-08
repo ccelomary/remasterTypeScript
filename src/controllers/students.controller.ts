@@ -11,12 +11,18 @@ class StudentsController {
   public scanedStudent = scanedStudentModel;
   public Flag = flagModel;
   public Coalition = coalitionModel;
+
+  public getCurrentStudent = (req: Request, res: Response) => {
+    res.status(200).json((req as any).user);
+  };
+
   public getStudents = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const findAllStudentsData: Student[] = await this.Student.find();
 
       res.status(200).json({ success: true, data: findAllStudentsData });
     } catch (error) {
+      console.log('here ', error);
       next(error);
     }
   };
@@ -55,20 +61,28 @@ class StudentsController {
         return;
       }
       const getfirstStudent = await this.Student.findById(studentScan);
-      const getfirstScanedStudents = await this.scanedStudent.findOne({ student: getfirstStudent }).populate('scanedStudents');
-      const hunts = await this.Flag.findOne({ value: value });
+
+      const hunts = await this.Flag.findById(value);
       if (!getfirstStudent) {
         res.status(406).json({ suceess: false, data: 'Invalid data' });
         return;
       }
       if (hunts) {
+        if (hunts.priority !== getfirstStudent.flag_priority) {
+          res.status(406).json({ success: false, error: 'Go to other qr code!' });
+          return;
+        }
         if (!hunts.scaned) {
-          getfirstStudent.points += hunts.points;
-          const coalition = await this.Coalition.findById(getfirstStudent.coalition);
-          coalition.points += hunts.points;
+          if (hunts.last) {
+            getfirstStudent.points += hunts.points;
+            const coalition = await this.Coalition.findById(getfirstStudent.coalition);
+            coalition.points += hunts.points;
+            await coalition.save();
+            hunts.scaned = true;
+          }
+          getfirstStudent.flag_priority++;
           await getfirstStudent.save();
-          await coalition.save();
-          res.status(201).json({ success: true, data: getfirstStudent });
+          res.status(201).json({ success: true, scaned: 'flag', data: { student: getfirstStudent, flag: hunts } });
         } else {
           res.status(406).json({ success: false, error: 'flag already scaned' });
         }
@@ -76,6 +90,8 @@ class StudentsController {
       }
       let found = false;
       const getSecondStudent = await this.Student.findOne({ _id: value });
+      const getfirstScanedStudents = await this.scanedStudent.findOne({ student: getfirstStudent }).populate('scanedStudents');
+      const getsecondScanedStudents = await this.scanedStudent.findOne({ student: getSecondStudent }).populate('scanedStudents');
       if (!getSecondStudent) {
         res.status(406).json({ success: false, error: 'Invalid Data' });
         return;
@@ -88,14 +104,28 @@ class StudentsController {
         }
       }
       if (!found) {
-        const coalition = await this.Coalition.findById(getfirstStudent.coalition);
-        coalition.points++;
-        getfirstStudent.connections += 1;
+        const popluateStudents = getsecondScanedStudents.scanedStudents;
+        for (const student of popluateStudents) {
+          if (student.login === getSecondStudent.login) {
+            found = true;
+            break;
+          }
+        }
+      }
+      if (!found) {
+        const coalitionA = await this.Coalition.findById(getfirstStudent.coalition);
+        const coalitionB = await this.Coalition.findById(getSecondStudent.coalition);
+        coalitionA.points++;
+        coalitionB.points++;
+        getfirstStudent.connections++;
+        getSecondStudent.connections++;
         getfirstScanedStudents.scanedStudents.push(getSecondStudent);
+        getsecondScanedStudents.scanedStudents.push(getfirstStudent);
         await getfirstScanedStudents.save();
         await getfirstStudent.save();
-        await coalition.save();
-        res.status(201).json({ success: true, data: [{ user: getfirstStudent, value: value }] });
+        await coalitionA.save();
+        await coalitionB.save();
+        res.status(201).json({ success: true, scaned: 'student', data: { student: getfirstStudent } });
       } else {
         res.status(406).json({ success: false, error: 'Student Already Scaned' });
       }

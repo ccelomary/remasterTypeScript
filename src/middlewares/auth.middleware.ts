@@ -12,8 +12,8 @@ const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFun
     if (Authorization) {
       const secretKey: string = config.get('secretKey');
       const verificationResponse = (await jwt.verify(Authorization, secretKey)) as DataStoredInToken;
-      const userId = verificationResponse._id;
-      const findUser = await studentModel.findById(userId);
+      const userId = verificationResponse.id;
+      const findUser = await studentModel.findOne({ intra_id: userId }).populate('coalition');
 
       if (findUser) {
         req.user = findUser;

@@ -3,6 +3,7 @@ import { Student } from '@/interfaces/students.interface';
 
 const studentSchema: Schema = new Schema({
   intra_id: Number,
+  flag_priority: Number,
   login: String,
   name: String,
   image_url: String,

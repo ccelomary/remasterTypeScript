@@ -3,6 +3,7 @@ import { Student } from '@/interfaces/students.interface';
 
 export interface DataStoredInToken {
   _id: string;
+  id: number;
 }
 
 export interface TokenData {
