@@ -1,5 +1,5 @@
 import { Student } from '@interfaces/students.interface';
-
+import { Team } from '@interfaces/teams.interface';
 export interface Coalition {
   intra_id: number;
   name: string;
@@ -8,4 +8,5 @@ export interface Coalition {
   cover_url: string;
   points: number;
   students: Student[];
+  teams: Team[];
 }

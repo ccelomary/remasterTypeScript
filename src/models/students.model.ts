@@ -14,6 +14,10 @@ const studentSchema: Schema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'Coalition',
   },
+  team: {
+    type: Schema.Types.ObjectId,
+    ref: 'Team',
+  },
 });
 
 const studentModel = model<Student & Document>('Student', studentSchema);

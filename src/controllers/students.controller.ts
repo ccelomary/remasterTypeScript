@@ -5,13 +5,14 @@ import studentModel from '@/models/students.model';
 import flagModel from '@/models/flags.model';
 import coalitionModel from '@/models/coalitions.model';
 import { Types } from 'mongoose';
+import teamModel from '@/models/teams.model';
 
 class StudentsController {
   public Student = studentModel;
   public scanedStudent = scanedStudentModel;
   public Flag = flagModel;
   public Coalition = coalitionModel;
-
+  public Team = teamModel;
   public getCurrentStudent = (req: Request, res: Response) => {
     res.status(200).json((req as any).user);
   };

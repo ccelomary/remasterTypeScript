@@ -1,5 +1,3 @@
-process.env['NODE_CONFIG_DIR'] = __dirname + '/configs';
-
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -15,7 +13,10 @@ import { dbConnection } from '@databases';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
+import process from 'process';
+import path from 'path';
 
+process.env['NODE_CONFIG_DIR'] = __dirname + '/configs';
 class App {
   public app: express.Application;
   public port: string | number;
