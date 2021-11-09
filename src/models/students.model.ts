@@ -7,6 +7,7 @@ const studentSchema: Schema = new Schema({
   login: String,
   name: String,
   image_url: String,
+  pass: String,
   connections: Number,
   points: Number,
   coalition: {

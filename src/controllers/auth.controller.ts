@@ -2,6 +2,9 @@ import coalitionModel from '@/models/coalitions.model';
 import scanedStudentModel from '@/models/scaned-students.model';
 import studentModel from '@/models/students.model';
 import { Request, Response } from 'express';
+const Str = require('@supercharge/strings');
+//import cryptoRandomString from 'crypto-random-string';
+
 import fetch from 'isomorphic-fetch';
 
 class AuthController {
@@ -11,7 +14,7 @@ class AuthController {
 
   public authenticate = async (req: Request, res: Response) => {
     res.redirect(
-      'https://api.intra.42.fr/oauth/authorize?client_id=77aae966bcf30aa1891a762725ff7ffc3715f29ebc8865884c70083af995d2c2&redirect_uri=http://10.11.11.11:5000/oauth2/redirect&response_type=code',
+      `https://api.intra.42.fr/oauth/authorize?client_id=77aae966bcf30aa1891a762725ff7ffc3715f29ebc8865884c70083af995d2c2&redirect_uri=http://127.0.0.1:5000/oauth2/redirect&response_type=code`,
     );
   };
 
@@ -31,7 +34,7 @@ class AuthController {
           client_id: '77aae966bcf30aa1891a762725ff7ffc3715f29ebc8865884c70083af995d2c2',
           client_secret: 'abbc19357de6a28b4108d325b7abb4a6d17f74baa24bc7dfae7c2bcdddd31eaa',
           code: code,
-          redirect_uri: 'http://10.11.11.11:5000/oauth2/redirect',
+          redirect_uri: `http://127.0.0.1:5000/oauth2/redirect`,
         }),
       })
         .then(resp => resp.json())
@@ -48,15 +51,15 @@ class AuthController {
             },
           }).then(resp => resp.json());
 
-          await this.handleStudentAuthentication(
+          const student = await this.handleStudentAuthentication(
             { intra_id: new_data.id, name: new_data.displayname, image_url: new_data.image_url, login: new_data.login },
             access_token,
           );
-
-          res.redirect('schoolqr://auth?access_token=' + access_token);
+          res.redirect(`/password/${student.intra_id}`);
         });
     } catch (error) {
       console.error(error);
+      res.send('hello world');
     }
   };
 
@@ -76,7 +79,7 @@ class AuthController {
           client_id: '77aae966bcf30aa1891a762725ff7ffc3715f29ebc8865884c70083af995d2c2',
           client_secret: 'abbc19357de6a28b4108d325b7abb4a6d17f74baa24bc7dfae7c2bcdddd31eaa',
           code: code,
-          redirect_uri: 'http://10.11.11.11:5000/oauth2/redirect',
+          redirect_uri: `http://127.0.0.1:5000/oauth2/redirect`,
         }),
       })
         .then(resp => resp.json())
@@ -103,6 +106,7 @@ class AuthController {
         });
     } catch (error) {
       console.error(error);
+      res.status(406).json({ success: false, error: 'invalid data' });
     }
   };
 
@@ -129,6 +133,7 @@ class AuthController {
           const student = new this.Student({
             login: data.login,
             name: data.name,
+            pass: Str.random(15), //cryptoRandomString({ length: 15, type: 'ascii-printable' }),
             image_url: data.image_url,
             flag_priority: 1,
             intra_id: data.intra_id,
@@ -170,6 +175,7 @@ class AuthController {
               name: data.name,
               image_url: data.image_url,
               intra_id: data.intra_id,
+              pass: Str.random(15), //cryptoRandomString({ length: 15, type: 'ascii-printable' }),
               connections: 0,
               flag_priority: 1,
               points: 0,

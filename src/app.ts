@@ -23,9 +23,9 @@ class App {
 
   constructor(routes: Routes[]) {
     this.app = express();
+    this.app.set('view engine', 'ejs');
     this.port = process.env.PORT || 5000;
     this.env = process.env.NODE_ENV || 'development';
-
     this.connectToDatabase();
     this.initializeMiddlewares();
     this.initializeRoutes(routes);

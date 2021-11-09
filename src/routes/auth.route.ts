@@ -1,5 +1,7 @@
 import { Router } from 'express';
+
 import { Routes } from '@interfaces/routes.interface';
+
 import AuthController from '@controllers/auth.controller';
 
 class AuthRoute implements Routes {
@@ -9,7 +11,6 @@ class AuthRoute implements Routes {
   constructor() {
     this.initializeRoutes();
   }
-
   private initializeRoutes() {
     this.router.get('/oauth2/authenticate', this.authController.authenticate);
     this.router.get('/oauth2/redirect', this.authController.callbackRedirect);

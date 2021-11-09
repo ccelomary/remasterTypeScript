@@ -18,11 +18,9 @@ class StudentsController {
 
   public getStudents = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const findAllStudentsData: Student[] = await this.Student.find();
-
+      const findAllStudentsData: Student[] = await this.Student.find().sort({ points: -1, connections: -1 });
       res.status(200).json({ success: true, data: findAllStudentsData });
     } catch (error) {
-      console.log('here ', error);
       next(error);
     }
   };
@@ -39,7 +37,17 @@ class StudentsController {
       next(error);
     }
   };
-
+  public getStudentPasswordByIntraId = async (req: Request, res: Response) => {
+    try {
+      const intra_id = parseInt(req.params.intra_id);
+      const student = await this.Student.findOne({ intra_id: intra_id });
+      if (!student) {
+        res.status(406).json({ error: 'Invalid data' });
+      } else res.status(200).render('password.ejs', { password: student.pass });
+    } catch {
+      res.status(406).json({ error: 'Invalid data' });
+    }
+  };
   public getStudentByIds = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const studentIds: string[] = req.body.ids;
@@ -50,6 +58,16 @@ class StudentsController {
       res.status(200).json({ success: true, data: findStudentsData });
     } catch (error) {
       next(error);
+    }
+  };
+  public getStudentByPassword = async (req: Request, res: Response) => {
+    try {
+      const password = req.body.password;
+      const student = await this.Student.findOne({ pass: password });
+      if (!student) res.status(406).json({ success: false, error: 'Invalid Password' });
+      else res.status(201).json({ success: true, data: student });
+    } catch {
+      res.status(406).json({ success: false, error: 'Invalid Password' });
     }
   };
   public ScanQrCode = async (req: Request, res: Response, next: NextFunction) => {
