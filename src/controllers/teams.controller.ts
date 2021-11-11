@@ -13,12 +13,12 @@ class TeamController {
       const coalition_id = req.params.coalition_id;
       const coalition = await this.Coalition.findById(coalition_id).populate('teams');
       if (!coalition) {
-        res.status(406).json({ success: false, error: 'Invalid Data' });
+        res.status(201).json({ success: false, error: 'Invalid Data' });
       } else {
         res.status(201).json({ success: true, data: coalition.teams });
       }
     } catch (err) {
-      res.status(406).json({ success: false, error: 'Invalid Data' });
+      res.status(201).json({ success: false, error: 'Invalid Data' });
     }
   };
 
@@ -27,12 +27,12 @@ class TeamController {
       const team_id = req.params.team_id;
       const team = await this.Team.findById(team_id).populate('students');
       if (!team) {
-        res.status(406).json({ success: false, error: 'Invalid data' });
+        res.status(201).json({ success: false, error: 'Invalid data' });
       } else {
         res.status(201).json({ success: true, data: team.students });
       }
     } catch (err) {
-      res.status(406).json({ success: false, error: 'Invalid data' });
+      res.status(201).json({ success: false, error: 'Invalid data' });
     }
   };
 
@@ -48,7 +48,7 @@ class TeamController {
       await student.save();
       res.status(201).json({ success: true, data: 'User Added To Team' });
     } catch (error) {
-      res.status(406).json({ success: false, error: 'Invalid Data' });
+      res.status(201).json({ success: false, error: 'Invalid Data' });
     }
   };
 
@@ -63,7 +63,7 @@ class TeamController {
       await coalition.save();
       res.status(201).json({ success: true, data: 'Team Created Successfully!' });
     } catch (error) {
-      res.status(406).json({ success: false, error: 'Invalid Data' });
+      res.status(201).json({ success: false, error: 'Invalid Data' });
     }
   };
 }

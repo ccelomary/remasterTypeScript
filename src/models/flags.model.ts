@@ -13,7 +13,7 @@ const flagSchema: Schema = new Schema({
   priority: Number,
   points: Number,
   scaned: Boolean,
-  last: Boolean
+  last: Boolean,
 });
 
 const flagModel = model<Flag & Document>('Flag', flagSchema);

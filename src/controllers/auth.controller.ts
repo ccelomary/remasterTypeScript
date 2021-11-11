@@ -107,7 +107,7 @@ class AuthController {
         });
     } catch (error) {
       console.error(error);
-      res.status(406).json({ success: false, error: 'invalid data' });
+      res.status(201).json({ success: false, error: 'invalid data' });
     }
   };
 

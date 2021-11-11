@@ -43,10 +43,10 @@ class StudentsController {
       const intra_id = parseInt(req.params.intra_id);
       const student = await this.Student.findOne({ intra_id: intra_id });
       if (!student) {
-        res.status(406).json({ error: 'Invalid data' });
+        res.status(201).json({ error: 'Invalid data' });
       } else res.status(200).render('password.ejs', { password: student.pass });
     } catch {
-      res.status(406).json({ error: 'Invalid data' });
+      res.status(201).json({ error: 'Invalid data' });
     }
   };
   public getStudentByIds = async (req: Request, res: Response, next: NextFunction) => {
@@ -65,10 +65,10 @@ class StudentsController {
     try {
       const password = req.body.password;
       const student = await this.Student.findOne({ pass: password });
-      if (!student) res.status(406).json({ success: false, error: 'Invalid Password' });
+      if (!student) res.status(201).json({ success: false, error: 'Invalid Password' });
       else res.status(201).json({ success: true, data: student });
     } catch {
-      res.status(406).json({ success: false, error: 'Invalid Password' });
+      res.status(201).json({ success: false, error: 'Invalid Password' });
     }
   };
   public ScanQrCode = async (req: Request, res: Response, next: NextFunction) => {
@@ -76,19 +76,19 @@ class StudentsController {
       const studentScan = req.body.user_id;
       const value = req.body.value;
       if (!studentScan || !value) {
-        res.status(406).json({ suceess: false, data: 'Invalid data' });
+        res.status(201).json({ suceess: false, data: 'Invalid data' });
         return;
       }
       const getfirstStudent = await this.Student.findById(studentScan);
 
       const hunts = await this.Flag.findById(value);
       if (!getfirstStudent) {
-        res.status(406).json({ suceess: false, data: 'Invalid data' });
+        res.status(201).json({ suceess: false, data: 'Invalid data' });
         return;
       }
       if (hunts) {
         if (hunts.priority !== getfirstStudent.flag_priority) {
-          res.status(406).json({ success: false, error: 'Go to other qr code!' });
+          res.status(201).json({ success: false, error: 'Go to other qr code!' });
           return;
         }
         if (!hunts.scaned) {
@@ -103,7 +103,7 @@ class StudentsController {
           await getfirstStudent.save();
           res.status(201).json({ success: true, scaned: 'flag', data: { student: getfirstStudent, flag: hunts } });
         } else {
-          res.status(406).json({ success: false, error: 'flag already scaned' });
+          res.status(201).json({ success: false, error: 'flag already scaned' });
         }
         return;
       }
@@ -112,7 +112,7 @@ class StudentsController {
       const getfirstScanedStudents = await this.scanedStudent.findOne({ student: getfirstStudent }).populate('scanedStudents');
       const getsecondScanedStudents = await this.scanedStudent.findOne({ student: getSecondStudent }).populate('scanedStudents');
       if (!getSecondStudent) {
-        res.status(406).json({ success: false, error: 'Invalid Data' });
+        res.status(201).json({ success: false, error: 'Invalid Data' });
         return;
       }
       const popluateStudents = getfirstScanedStudents.scanedStudents;
