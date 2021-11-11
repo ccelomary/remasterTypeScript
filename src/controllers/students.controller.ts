@@ -146,7 +146,7 @@ class StudentsController {
         await coalitionB.save();
         res.status(201).json({ success: true, scaned: 'student', data: { student: getfirstStudent } });
       } else {
-        res.status(406).json({ success: false, error: 'Student Already Scaned' });
+        res.status(201).json({ success: false, error: 'Student Already Scaned' });
       }
     } catch (err) {
       next(err);
