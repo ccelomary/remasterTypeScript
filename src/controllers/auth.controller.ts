@@ -15,7 +15,7 @@ class AuthController {
 
   public authenticate = async (req: Request, res: Response) => {
     res.redirect(
-      `https://api.intra.42.fr/oauth/authorize?client_id=77aae966bcf30aa1891a762725ff7ffc3715f29ebc8865884c70083af995d2c2&redirect_uri=http://${process.env.ADDRESS}:${process.env.PORT}/oauth2/redirect&response_type=code`,
+      `https://api.intra.42.fr/oauth/authorize?client_id=77aae966bcf30aa1891a762725ff7ffc3715f29ebc8865884c70083af995d2c2&redirect_uri=https://${process.env.ADDRESS}:${process.env.PORT}/oauth2/redirect&response_type=code`,
     );
   };
 
@@ -35,7 +35,7 @@ class AuthController {
           client_id: '77aae966bcf30aa1891a762725ff7ffc3715f29ebc8865884c70083af995d2c2',
           client_secret: 'abbc19357de6a28b4108d325b7abb4a6d17f74baa24bc7dfae7c2bcdddd31eaa',
           code: code,
-          redirect_uri: `http://${process.env.ADDRESS}:${process.env.PORT}/oauth2/redirect`,
+          redirect_uri: `https://${process.env.ADDRESS}:${process.env.PORT}/oauth2/redirect`,
         }),
       })
         .then(resp => resp.json())
@@ -80,7 +80,7 @@ class AuthController {
           client_id: '77aae966bcf30aa1891a762725ff7ffc3715f29ebc8865884c70083af995d2c2',
           client_secret: 'abbc19357de6a28b4108d325b7abb4a6d17f74baa24bc7dfae7c2bcdddd31eaa',
           code: code,
-          redirect_uri: `http://${process.env.ADDRESS}:${process.env.PORT}/oauth2/redirect`,
+          redirect_uri: `https://${process.env.ADDRESS}:${process.env.PORT}/oauth2/redirect`,
         }),
       })
         .then(resp => resp.json())

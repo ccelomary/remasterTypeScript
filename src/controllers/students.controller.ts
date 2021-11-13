@@ -38,6 +38,17 @@ class StudentsController {
       next(error);
     }
   };
+  public getStudentById = async (req: Request, res: Response) => {
+    try {
+      const _id = req.body.id;
+      const student = await this.Student.findById(_id);
+      if (!student) res.status(200).json({ success: false, error: 'Invalid Data' });
+      else res.status(200).json({ success: true, data: student });
+    } catch (error) {
+      res.status(200).json({ success: false, error: 'Invalid Data' });
+    }
+  };
+
   public getStudentPasswordByIntraId = async (req: Request, res: Response) => {
     try {
       const intra_id = parseInt(req.params.intra_id);
@@ -141,7 +152,9 @@ class StudentsController {
         getfirstScanedStudents.scanedStudents.push(getSecondStudent);
         getsecondScanedStudents.scanedStudents.push(getfirstStudent);
         await getfirstScanedStudents.save();
+        await getsecondScanedStudents.save();
         await getfirstStudent.save();
+        await getSecondStudent.save();
         await coalitionA.save();
         await coalitionB.save();
         res.status(201).json({ success: true, scaned: 'student', data: { student: getfirstStudent } });
