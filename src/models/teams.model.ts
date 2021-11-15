@@ -13,6 +13,7 @@ const teamSchema: Schema = new Schema({
       ref: 'Student',
     },
   ],
+  points: Number,
 });
 
 const teamModel = model<Team & Document>('Team', teamSchema);

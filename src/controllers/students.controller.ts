@@ -6,6 +6,7 @@ import flagModel from '@/models/flags.model';
 import coalitionModel from '@/models/coalitions.model';
 import { Types } from 'mongoose';
 import teamModel from '@/models/teams.model';
+import scanedFlagModel from '@/models/scanedFlag.model';
 
 class StudentsController {
   public Student = studentModel;
@@ -13,6 +14,7 @@ class StudentsController {
   public Flag = flagModel;
   public Coalition = coalitionModel;
   public Team = teamModel;
+  public scanedFlags = scanedFlagModel;
   public getCurrentStudent = (req: Request, res: Response) => {
     res.status(200).json((req as any).user);
   };
@@ -38,6 +40,7 @@ class StudentsController {
       next(error);
     }
   };
+
   public getStudentById = async (req: Request, res: Response) => {
     try {
       const _id = req.body.id;
@@ -77,7 +80,9 @@ class StudentsController {
       const password = req.body.password;
       const student = await this.Student.findOne({ pass: password });
       if (!student) res.status(201).json({ success: false, error: 'Invalid Password' });
-      else res.status(201).json({ success: true, data: student });
+      else {
+        res.status(201).json({ success: true, data: student });
+      }
     } catch {
       res.status(201).json({ success: false, error: 'Invalid Password' });
     }
@@ -104,11 +109,19 @@ class StudentsController {
         }
         if (!hunts.scaned) {
           if (hunts.last) {
-            getfirstStudent.points += hunts.points;
             const coalition = await this.Coalition.findById(getfirstStudent.coalition);
+            const team = await this.Team.findById(getfirstStudent.coalition).populate('students');
+            for (const student of team.students) {
+              const flag = await this.scanedFlags.findOne({ student: student });
+              flag.flags.push(hunts);
+              await flag.save();
+            }
             coalition.points += hunts.points;
             await coalition.save();
             hunts.scaned = true;
+
+            // TODO: Send a message to all participants indicating that a team
+            //       has found a flag and scored a point
           }
           getfirstStudent.flag_priority++;
           await getfirstStudent.save();
@@ -157,12 +170,30 @@ class StudentsController {
         await getSecondStudent.save();
         await coalitionA.save();
         await coalitionB.save();
+
+        // TODO: send a message to specific user with the updated connection count
         res.status(201).json({ success: true, scaned: 'student', data: { student: getfirstStudent } });
       } else {
         res.status(201).json({ success: false, error: 'Student Already Scaned' });
       }
     } catch (err) {
       next(err);
+    }
+  };
+  public StudentScanedFlag = async (req: Request, res: Response) => {
+    try {
+      const student_id = req.body.student_id;
+      const student = await this.Student.findById(student_id);
+      const flags = await (await this.scanedFlags.findOne({ student: student })).populate('flags');
+      if (flags.lastId < student.flag_priority && flags.flags[flags.lastId].priority === student.flag_priority) {
+        const flag = flags.flags[flags.lastId];
+        res.status(200).json({ sucess: true, flag: flag });
+        flags.lastId++;
+        flags.save();
+        return;
+      } else res.status(201).json({ success: false, flag: null });
+    } catch (err) {
+      res.status(201).json({ success: false, error: 'Scaned Error' });
     }
   };
 }

@@ -27,6 +27,7 @@ class IndexRoute implements Routes {
     this.router.get('/students/fetch/:intra_id', authMiddleware, this.studentsController.getStudentByIntraId);
     /* Flag */
     this.router.post('/huntFlag/create', authMiddleware, this.flagController.createFlag);
+    this.router.post('/huntFlag/check/student', this.studentsController.StudentScanedFlag);
     /* Coalition */
     this.router.get('/coallition/getCoalitions/', this.coalitionController.getCoallitions);
     /* Index */
@@ -36,8 +37,8 @@ class IndexRoute implements Routes {
     this.router.post('/students/fetch/password/', this.studentsController.getStudentByPassword);
     this.router.get('/teams/fetch/byCoalition/:coalition_id', this.teamController.getTeamsByCoalition);
     this.router.get('/temas/fetch/students/byId/:team_id', this.teamController.getStudentsTeam);
-    this.router.post('/teams/add/stduent/', this.teamController.addStudentToTeam);
-    this.router.post('teams/create/team/', this.teamController.createTeam);
+    this.router.post('/teams/add/student/', this.teamController.addStudentToTeam);
+    this.router.post('/teams/create/team/', this.teamController.createTeam);
   }
 }
 

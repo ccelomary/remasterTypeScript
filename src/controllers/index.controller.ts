@@ -5,7 +5,7 @@ class IndexController {
     res.render('connect.ejs');
   };
   public getPassword = (req: Request, res: Response) => {
-    res.redirect(`https://${process.env.ADDRESS}:${process.env.PORT}/oauth2/authenticate`);
+    res.redirect(`http://${process.env.ADDRESS}:${process.env.PORT}/oauth2/authenticate`);
   };
 }
 

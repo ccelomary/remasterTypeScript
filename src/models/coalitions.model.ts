@@ -14,6 +14,12 @@ const coalitionSchema: Schema = new Schema({
       ref: 'Student',
     },
   ],
+  teams: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Team',
+    },
+  ],
 });
 
 const coalitionModel = model<Coalition & Document>('Coalition', coalitionSchema);

@@ -14,9 +14,6 @@ import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 import process from 'process';
-import https from 'https';
-import fs from 'fs';
-import path from 'path';
 process.env['NODE_CONFIG_DIR'] = __dirname + '/configs';
 class App {
   public app: express.Application;
@@ -36,21 +33,21 @@ class App {
   }
 
   public listen() {
-    console.log('here');
-    https
+    /*https
       .createServer(
         {
-          key: fs.readFileSync('/Users/mel-omar/Desktop/remasterTypeScript/src/key.pem'),
-          cert: fs.readFileSync('/Users/mel-omar/Desktop/remasterTypeScript/src/cert.pem'),
+          // key: fs.readFileSync('/Users/mel-omar/Desktop/remasterTypeScript/src/key.pem'),
+          // cert: fs.readFileSync('/Users/mel-omar/Desktop/remasterTypeScript/src/cert.pem'),
         },
-        this.app,
+        ,
       )
-      .listen(this.port, () => {
-        logger.info(`=================================`);
-        logger.info(`======= ENV: ${this.env} =======`);
-        logger.info(`🚀 App listening on the port ${this.port}`);
-        logger.info(`=================================`);
-      });
+      */
+    this.app.listen(this.port, () => {
+      logger.info(`=================================`);
+      logger.info(`======= ENV: ${this.env} =======`);
+      logger.info(`🚀 App listening on the port ${this.port}`);
+      logger.info(`=================================`);
+    });
   }
 
   public getServer() {

@@ -5,4 +5,6 @@ export interface Team {
   name: string;
   coalition: Coalition;
   students: Student[];
+  points: number;
+  priority: number;
 }

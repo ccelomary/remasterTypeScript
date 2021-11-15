@@ -1,5 +1,6 @@
 import coalitionModel from '@/models/coalitions.model';
 import scanedStudentModel from '@/models/scaned-students.model';
+import scanedFlagModel from '@/models/scanedFlag.model';
 import studentModel from '@/models/students.model';
 import { Request, Response } from 'express';
 import process from 'process';
@@ -12,10 +13,10 @@ class AuthController {
   private Student = studentModel;
   private Coalition = coalitionModel;
   private ScanedStudent = scanedStudentModel;
-
+  private ScanedFlag = scanedFlagModel;
   public authenticate = async (req: Request, res: Response) => {
     res.redirect(
-      `https://api.intra.42.fr/oauth/authorize?client_id=77aae966bcf30aa1891a762725ff7ffc3715f29ebc8865884c70083af995d2c2&redirect_uri=https://${process.env.ADDRESS}:${process.env.PORT}/oauth2/redirect&response_type=code`,
+      `https://api.intra.42.fr/oauth/authorize?client_id=77aae966bcf30aa1891a762725ff7ffc3715f29ebc8865884c70083af995d2c2&redirect_uri=http://${process.env.ADDRESS}:${process.env.PORT}/oauth2/redirect&response_type=code`,
     );
   };
 
@@ -35,13 +36,13 @@ class AuthController {
           client_id: '77aae966bcf30aa1891a762725ff7ffc3715f29ebc8865884c70083af995d2c2',
           client_secret: 'abbc19357de6a28b4108d325b7abb4a6d17f74baa24bc7dfae7c2bcdddd31eaa',
           code: code,
-          redirect_uri: `https://${process.env.ADDRESS}:${process.env.PORT}/oauth2/redirect`,
+          redirect_uri: `http://${process.env.ADDRESS}:${process.env.PORT}/oauth2/redirect`,
         }),
       })
         .then(resp => resp.json())
         .then(async data => {
           const access_token = data.access_token;
-
+          console.log('error');
           const new_data = await fetch('https://api.intra.42.fr/v2/me', {
             method: 'GET',
             headers: {
@@ -80,7 +81,7 @@ class AuthController {
           client_id: '77aae966bcf30aa1891a762725ff7ffc3715f29ebc8865884c70083af995d2c2',
           client_secret: 'abbc19357de6a28b4108d325b7abb4a6d17f74baa24bc7dfae7c2bcdddd31eaa',
           code: code,
-          redirect_uri: `https://${process.env.ADDRESS}:${process.env.PORT}/oauth2/redirect`,
+          redirect_uri: `http://${process.env.ADDRESS}:${process.env.PORT}/oauth2/redirect`,
         }),
       })
         .then(resp => resp.json())
@@ -148,7 +149,9 @@ class AuthController {
           student.coalition = coalition;
           await student.save();
           const scaned = new this.ScanedStudent({ student: student });
+          const flag = new this.ScanedFlag({ student: student, lastId: 0 });
           await scaned.save();
+          await flag.save();
           return student;
         } else {
           return await fetch(`https://api.intra.42.fr/v2/coalitions/${current_body[0].coalition_id}`, {
@@ -187,7 +190,9 @@ class AuthController {
             new_student.coalition = new_coalition;
             await new_student.save();
             const scaned = new this.ScanedStudent({ student: new_student });
+            const flag = new this.ScanedFlag({ student: new_student, lastId: 0 });
             await scaned.save();
+            await flag.save();
             return new_student;
           });
         }

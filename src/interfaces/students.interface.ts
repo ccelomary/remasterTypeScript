@@ -8,7 +8,6 @@ export interface Student {
   login: string;
   image_url: string;
   connections: number;
-  points: number;
   coalition: Coalition;
   team: Team;
 }
