@@ -66,6 +66,7 @@ class App {
     this.app.use(morgan(config.get('log.format'), { stream }));
     this.app.use(cors({ origin: config.get('cors.origin'), credentials: config.get('cors.credentials') }));
     this.app.use(hpp());
+    this.app.use('/images', express.static('/Users/mel-omar/Desktop/remasterTypeScript/src/images'));
     this.app.use(helmet());
     this.app.use(compression());
     this.app.use(express.json());

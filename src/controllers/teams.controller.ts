@@ -74,7 +74,7 @@ class TeamController {
         res.status(201).json({ success: false, error: 'Team already exist in this coaliton' });
         return;
       }
-      const team = new this.Team({ name: team_name, coalition: coalition });
+      const team = new this.Team({ name: team_name, coalition: coalition, priority: 0, points: 0 });
       await team.save();
       if (!coalition.teams) coalition.teams = [];
       coalition.teams.push(team);

@@ -21,7 +21,7 @@ class StudentsController {
 
   public getStudents = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const findAllStudentsData: Student[] = await this.Student.find().sort({ points: -1, connections: -1 });
+      const findAllStudentsData: Student[] = await this.Student.find().select(['-pass', '-_id']).sort({ points: -1, connections: -1 });
       res.status(200).json({ success: true, data: findAllStudentsData });
     } catch (error) {
       next(error);
@@ -44,7 +44,7 @@ class StudentsController {
   public getStudentById = async (req: Request, res: Response) => {
     try {
       const _id = req.body.id;
-      const student = await this.Student.findById(_id);
+      const student = await this.Student.findById(_id).populate('team');
       if (!student) res.status(200).json({ success: false, error: 'Invalid Data' });
       else res.status(200).json({ success: true, data: student });
     } catch (error) {
@@ -87,7 +87,7 @@ class StudentsController {
       res.status(201).json({ success: false, error: 'Invalid Password' });
     }
   };
-  public ScanQrCode = async (req: Request, res: Response, next: NextFunction) => {
+  public ScanQrCode = async (req: Request, res: Response) => {
     try {
       const studentScan = req.body.user_id;
       const value = req.body.value;
@@ -103,31 +103,24 @@ class StudentsController {
         return;
       }
       if (hunts) {
-        if (hunts.priority !== getfirstStudent.flag_priority) {
-          res.status(201).json({ success: false, error: 'Go to other qr code!' });
-          return;
-        }
-        if (!hunts.scaned) {
-          if (hunts.last) {
-            const coalition = await this.Coalition.findById(getfirstStudent.coalition);
-            const team = await this.Team.findById(getfirstStudent.coalition).populate('students');
-            for (const student of team.students) {
-              const flag = await this.scanedFlags.findOne({ student: student });
-              flag.flags.push(hunts);
-              await flag.save();
-            }
+        try {
+          const coalition = await this.Coalition.findById(getfirstStudent.coalition);
+          const team = await this.Team.findById(getfirstStudent.team);
+          if (hunts.priority - team.priority === 1) {
             coalition.points += hunts.points;
+            team.points += hunts.points;
+            team.priority++;
             await coalition.save();
-            hunts.scaned = true;
-
-            // TODO: Send a message to all participants indicating that a team
-            //       has found a flag and scored a point
+            await team.save();
+            res.status(200).json({ success: true, data: 'flag Scanned' });
+          } else {
+            if (hunts.priority - team.priority < 1) res.status(201).json({ success: false, error: 'flag already scanned' });
+            else if (hunts.priority - team.priority > 1)
+              res.status(201).json({ success: false, error: `Oops! this is not the one you are looking for` });
           }
-          getfirstStudent.flag_priority++;
-          await getfirstStudent.save();
-          res.status(201).json({ success: true, scaned: 'flag', data: { student: getfirstStudent, flag: hunts } });
-        } else {
-          res.status(201).json({ success: false, error: 'flag already scaned' });
+          //       has found a flag and scored a point
+        } catch (error) {
+          res.status(200).json({ success: false, error: 'not works' });
         }
         return;
       }
@@ -171,13 +164,12 @@ class StudentsController {
         await coalitionA.save();
         await coalitionB.save();
 
-        // TODO: send a message to specific user with the updated connection count
         res.status(201).json({ success: true, scaned: 'student', data: { student: getfirstStudent } });
       } else {
         res.status(201).json({ success: false, error: 'Student Already Scaned' });
       }
     } catch (err) {
-      next(err);
+      res.status;
     }
   };
   public StudentScanedFlag = async (req: Request, res: Response) => {

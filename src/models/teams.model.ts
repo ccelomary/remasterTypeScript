@@ -14,6 +14,7 @@ const teamSchema: Schema = new Schema({
     },
   ],
   points: Number,
+  priority: Number,
 });
 
 const teamModel = model<Team & Document>('Team', teamSchema);

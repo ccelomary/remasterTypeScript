@@ -25,6 +25,18 @@ class CoalitionController {
       next(err);
     }
   };
+  public addPointToGivenCoalition = async (req: Request, res: Response) => {
+    try {
+      const coalition_name = req.body.coalition_name;
+      const points = parseInt(req.body.points);
+      const coalition = await this.Coalition.findOne({ name: coalition_name });
+      coalition.points += points;
+      await coalition.save();
+      res.status(201).json({ success: true, data: 'points added Scuccessfully' });
+    } catch (err) {
+      res.status(201).json({ success: false, error: 'Invalid Data' });
+    }
+  };
 }
 
 export default CoalitionController;

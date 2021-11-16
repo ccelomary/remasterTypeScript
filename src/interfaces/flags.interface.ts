@@ -1,6 +1,7 @@
 export interface Flag {
   next_place: string;
-  image_url: string;
+  description: string;
+  type: string;
   priority: number;
   points: number;
   scaned: boolean;

@@ -26,10 +26,12 @@ class IndexRoute implements Routes {
     this.router.post('/students/fetch/byId/', this.studentsController.getStudentById);
     this.router.get('/students/fetch/:intra_id', authMiddleware, this.studentsController.getStudentByIntraId);
     /* Flag */
-    this.router.post('/huntFlag/create', authMiddleware, this.flagController.createFlag);
+    this.router.post('/huntFlag/create', this.flagController.createFlag);
     this.router.post('/huntFlag/check/student', this.studentsController.StudentScanedFlag);
+    this.router.post('/huntFlag/getByPriority', this.flagController.getFlagByPriority);
     /* Coalition */
     this.router.get('/coallition/getCoalitions/', this.coalitionController.getCoallitions);
+    this.router.post('/coallition/add/points/', this.coalitionController.addPointToGivenCoalition);
     /* Index */
     this.router.get('/', this.indexController.getPassword);
     this.router.get('/getPassword/', this.indexController.getPassword);

@@ -9,7 +9,8 @@ import { Flag } from '@/interfaces/flags.interface';
 */
 const flagSchema: Schema = new Schema({
   next_place: String,
-  image_url: String,
+  description: String,
+  type: String,
   priority: Number,
   points: Number,
   scaned: Boolean,
